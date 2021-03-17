@@ -108,10 +108,10 @@ def index():
   #
   # example of a database query
   #
-  cursor = g.conn.execute("SELECT title FROM song")
+  cursor = g.conn.execute("SELECT title, song_ID FROM song")
   songs = []
   for result in cursor:
-    songs.append(result[0])  # can also be accessed using result[0]
+    songs.append(result[1])  # can also be accessed using result[0]
   cursor.close()
 
   #
@@ -147,7 +147,7 @@ def index():
   # render_template looks in the templates/ folder for files.
   # for example, the below file reads template/index.html
   #
-  return render_template("index.html", **context)
+  return render_template("login.html", **context)
 
 #
 # This is an example of a different path.  You can see it at:
@@ -157,23 +157,26 @@ def index():
 # Notice that the function name is another() rather than index()
 # The functions for each app.route need to have different names
 #
-@app.route('/another')
-def another():
-  return render_template("another.html")
+#@app.route('/another')
+#def another():
+#  return render_template("another.html")
 
 
 # Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add():
-  name = request.form['name']
-  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
-  return redirect('/')
-
-
-@app.route('/login')
+@app.route('/login', methods=['POST'])
 def login():
-    abort(401)
-    this_is_never_executed()
+  email = request.form['email']
+  pwd = request.form['pwd']
+
+  # check shit
+  #g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
+  return redirect('www.google.com')
+
+
+#@app.route('/login')
+#def login():
+#    abort(401)
+#    this_is_never_executed()
 
 
 if __name__ == "__main__":
