@@ -147,7 +147,7 @@ def index():
   # render_template looks in the templates/ folder for files.
   # for example, the below file reads template/index.html
   #
-  return render_template("login.html", **context)
+  return render_template("followers.html", **context)
 
 #
 # This is an example of a different path.  You can see it at:
@@ -171,6 +171,18 @@ def login():
   # check shit
   #g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
   return redirect('www.google.com')
+
+@app.route('/followers')
+def followers():
+  cursor = g.conn.execute("SELECT m.name FROM l_follows_m l, member m WHERE member_ID_1 = ‘2’ AND m.member_id = l.member_id_1")
+
+  followers = []
+  for result in cursor:
+    followers.append(result[0])  # can also be accessed using result[0]
+  cursor.close()
+  context = dict(data = followers)
+  return render_template("followers.html", **context)
+
 
 
 #@app.route('/login')
