@@ -174,7 +174,7 @@ def login():
 
 @app.route('/followers')
 def followers():
-  cursor = g.conn.execute("SELECT m.name FROM l_follows_m l, member m WHERE member_ID_1 = ‘2’ AND m.member_id = l.member_id_1")
+  cursor = g.conn.execute("SELECT m.name as Followers FROM member m, (SELECT member_id_1 FROM l_follows_m l WHERE member_ID_2 = '2') as A Where m.member_id = a.member_id_1")
 
   followers = []
   for result in cursor:
