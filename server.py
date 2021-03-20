@@ -1,13 +1,4 @@
 
-"""
-Columbia's COMS W4111.001 Introduction to Databases
-Example Webserver
-To run locally:
-    python server.py
-Go to http://localhost:8111 in your browser.
-A debugger such as "pdb" may be helpful for debugging.
-Read about it online.
-"""
 import os
   # accessible as a variable in index.html:
 from sqlalchemy import *
@@ -16,36 +7,21 @@ from flask import Flask, request, render_template, g, redirect, Response
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
+global name
+global ID
+# database credentials
+DATABASEURI = "postgresql://al3854:328277@34.73.36.248/project1" 
 
-
-#
-# The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
-#
-# XXX: The URI should be in the format of: 
-#
-#     postgresql://USER:PASSWORD@34.73.36.248/project1
-#
-# For example, if you had username zy2431 and password 123123, then the following line would be:
-#
-#     DATABASEURI = "postgresql://zy2431:123123@34.73.36.248/project1"
-#
-DATABASEURI = "postgresql://al3854:328277@34.73.36.248/project1" # Modify this with your own credentials you received from Joseph!
-
-
-#
 # This line creates a database engine that knows how to connect to the URI above.
-#
 engine = create_engine(DATABASEURI)
 
-#
 # Example of running queries in your database
 # Note that this will probably not work if you already have a table named 'test' in your database, containing meaningful data. This is only an example showing you how to run queries in your database using SQLAlchemy.
-#
-engine.execute("""CREATE TABLE IF NOT EXISTS test (
-  id serial,
-  name text
-);""")
-engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
+#engine.execute("""CREATE TABLE IF NOT EXISTS test (
+#  id serial,
+#  name text
+#);""")
+#engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
 
 
 @app.before_request
@@ -75,7 +51,6 @@ def teardown_request(exception):
   except Exception as e:
     pass
 
-
 #
 # @app.route is a decorator around index() that means:
 #   run index() whenever the user tries to access the "/" path using a GET request
@@ -104,15 +79,14 @@ def index():
   # DEBUG: this is debugging code to see what request looks like
   print(request.args)
 
-
   #
   # example of a database query
   #
-  cursor = g.conn.execute("SELECT title, song_ID FROM song")
-  songs = []
-  for result in cursor:
-    songs.append(result[1])  # can also be accessed using result[0]
-  cursor.close()
+  #cursor = g.conn.execute("SELECT title, song_ID FROM song")
+  ##songs = []
+  #for result in cursor:
+  #  songs.append(result[1])  # can also be accessed using result[0]
+  #cursor.close()
 
   #
   # Flask uses Jinja templates, which is an extension to HTML where you can
@@ -140,55 +114,58 @@ def index():
   #     <div>{{n}}</div>
   #     {% endfor %}
   #
-  context = dict(data = songs)
-
+  #context = dict(data = songs)
 
   #
   # render_template looks in the templates/ folder for files.
   # for example, the below file reads template/index.html
   #
-  return render_template("followers.html", **context)
-
-#
-# This is an example of a different path.  You can see it at:
-# 
-#     localhost:8111/another
-#
-# Notice that the function name is another() rather than index()
-# The functions for each app.route need to have different names
-#
-#@app.route('/another')
-#def another():
-#  return render_template("another.html")
+  return render_template("login.html")
 
 
 # Example of adding new data to the database
-@app.route('/login', methods=['POST'])
-def login():
+@app.route('/dashboard', methods=['POST'])
+def dashboard():
   email = request.form['email']
-  pwd = request.form['pwd']
 
-  # check shit
-  #g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
-  return redirect('www.google.com')
+  #cursor = g.conn.execute("SELECT title, song_ID FROM song")
+  #songs = []
+  #for result in cursor:
+  #  songs.append(result[1])  # can also be accessed using result[0]
+  #cursor.close()
+  cursor = g.conn.execute('SELECT name, member_ID FROM member WHERE email = (%s)', email)
+  name_tmp = []
+  id_tmp = []
+  for result in cursor: 
+    name_tmp.append(result[0])
+    id_tmp.append(result[1])
+  cursor.close()
+  global name
+  name = name_tmp[0]
+  global ID
+  ID = id_tmp[0]
 
-@app.route('/followers')
+  return render_template("dashboard.html", name = name, id = ID)
+
+@app.route('/followers', methods=['GET'])
 def followers():
-  cursor = g.conn.execute("SELECT m.name as Followers FROM member m, (SELECT member_id_1 FROM l_follows_m l WHERE member_ID_2 = '2') as A Where m.member_id = a.member_id_1")
 
+  cursor = g.conn.execute('SELECT COUNT(member_ID_1) as Number_of_Followers FROM member m, (SELECT member_id_1 FROM l_follows_m l WHERE member_ID_2 = (%s) ) as A WHERE m.member_id = a.member_id_1', ID)
+  count_tmp = []
+  for result in cursor: 
+    count_tmp.append(result[0])
+  cursor.close()
+  count = count_tmp[0]
+
+  cursor = g.conn.execute('SELECT m.name as Followers FROM member m, (SELECT member_id_1 FROM l_follows_m l WHERE member_ID_2 = (%s) ) as A WHERE m.member_id = a.member_id_1', ID)
   followers = []
   for result in cursor:
-    followers.append(result[0])  # can also be accessed using result[0]
+    followers.append(result[0])
   cursor.close()
+
   context = dict(data = followers)
-  return render_template("followers.html", **context)
 
-
-
-#@app.route('/login')
-#def login():
-#    abort(401)
-#    this_is_never_executed()
+  return render_template("followers.html", name = name, count = count, **context)
 
 
 if __name__ == "__main__":
