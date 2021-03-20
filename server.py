@@ -167,6 +167,76 @@ def followers():
 
   return render_template("followers.html", name = name, count = count, **context)
 
+@app.route('/following', methods=['GET'])
+def following():
+  cursor = g.conn.execute('SELECT COUNT(member_ID_2) as Number_Following FROM member m, (SELECT member_id_2 FROM l_follows_m l WHERE member_ID_1 = (%s)) as A WHERE m.member_id = a.member_id_2', ID)
+  count_tmp = []
+  for result in cursor: 
+    count_tmp.append(result[0])
+  cursor.close()
+  count = count_tmp[0]
+
+  cursor = g.conn.execute('SELECT m.name as Followers FROM member m, (SELECT member_id_2 FROM l_follows_m l WHERE member_ID_1 = (%s)) as A WHERE m.member_id = a.member_id_2', ID)
+  following = []
+  for result in cursor:
+    following.append(result[0])
+  cursor.close()
+
+  context = dict(data = following)
+
+  return render_template("following.html", name = name, count = count, **context)
+
+@app.route('/liked-songs', methods=['GET'])
+def songs():
+  cursor = g.conn.execute('SELECT COUNT(song_ID) as Number_of_Liked_Songs FROM likes WHERE member_ID LIKE (%s)', ID)
+  count_tmp = []
+  for result in cursor: 
+    count_tmp.append(result[0])
+  cursor.close()
+  count = count_tmp[0]
+
+  cursor = g.conn.execute('SELECT s.title as Liked_Songs FROM likes l, song s WHERE l.member_ID LIKE (%s) AND l.song_id = s.song_id', ID)
+  songs = []
+  for result in cursor:
+    songs.append(result[0])
+  cursor.close()
+
+  context = dict(data = songs)
+
+  return render_template("songs.html", name = name, count = count, **context)
+
+@app.route('/playlists', methods=['GET'])
+def playlists():
+  cursor = g.conn.execute('SELECT c.title, c.date_created, c.duration, p.num_songs as number_of_songs, p.num_followers as Number_of_Followers FROM l_creates_p l, collection c, playlist p, l_creates_p l2, member m WHERE l.member_id = (%s) AND l.collection_id = c.collection_id AND c.collection_id = p.collection_ID', ID)
+  titles = []
+  date = []
+  duration = []
+  num_songs = []
+  for result in cursor: 
+    titles.append(result[0])
+    date.append(result[1])
+    duration.append(result[2])
+    num_songs.append(result[3])
+  cursor.close()
+
+  my_playlists = {titles[i]: [date[i], duration[i], num_songs[i]] for i in range(len(titles))} 
+
+  cursor = g.conn.execute('select c.title, c.date_created, c.duration, p.num_songs as number_of_songs, p.num_followers as Number_of_Followers, m.name from l_follows_p l, collection c, playlist p, member m where l.member_id = (%s) AND l.collection_ID = c.collection_ID AND c.collection_id = p.collection_ID AND m.member_id = l.member_id', ID)
+  titles1 = []
+  date1 = []
+  duration1 = []
+  num_songs1 = []
+  for result in cursor: 
+    titles1.append(result[0])
+    date1.append(result[1])
+    duration1.append(result[2])
+    num_songs1.append(result[3])
+  cursor.close()
+
+  following_playlists = {titles1[i]: [date1[i], duration1[i], num_songs1[i]] for i in range(len(titles1))} 
+  
+  return render_template("playlists.html", my_playlists = my_playlists, following_playlists = following_playlists)
+
 
 if __name__ == "__main__":
   import click
