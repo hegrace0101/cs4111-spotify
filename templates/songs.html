@@ -9,11 +9,23 @@
 <body>
 	<h1>{{name}}'s Liked Songs ({{count}})</h1>
 
-    <div>
-        {% for n in data %}
-        <div>{{n}}</div>
-        {% endfor %}
-    </div>
+  <table>
+		<tr>
+			<th> <h4>Song</h4> </th>
+				<td> <h4>Album</h4> </td>
+				<td> <h4>Artist</h4></td>
+		</tr>
+    {% for key, value in liked.items() %}
+    <tr>
+        <th> {{ key }} </th>
+        <td> {{ value[0] }} </td>
+        <td> {{ value[1] }} </td>
+		  </tr>
+		{% endfor %}
+	</table>
+
+
+    
 
 </body>
 

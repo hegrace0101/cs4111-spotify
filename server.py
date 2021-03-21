@@ -195,31 +195,38 @@ def songs():
   cursor.close()
   count = count_tmp[0]
 
-  cursor = g.conn.execute('SELECT s.title as Liked_Songs FROM likes l, song s WHERE l.member_ID LIKE (%s) AND l.song_id = s.song_id', ID)
+  cursor = g.conn.execute('SELECT D.song_title as song, c.title as album, D.artist FROM (SELECT song.title as song_title, song.collection_id as album_id, C.artist FROM (SELECT B.song_id, member.name AS artist FROM (SELECT A.song_id, a_creates_s.member_ID as member_ID FROM (SELECT s.song_id AS song_id FROM likes l, song s WHERE l.member_ID = (%s) AND l.song_id = s.song_id) AS A NATURAL JOIN a_creates_s) as B NATURAL JOIN member) AS C NATURAL JOIN song) AS D LEFT OUTER JOIN collection c ON D.album_id = c.collection_id', ID)
   songs = []
+  album = []
+  artist = []
   for result in cursor:
     songs.append(result[0])
+    album.append(result[1])
+    artist.append(result[2])
   cursor.close()
 
-  context = dict(data = songs)
+  liked = {songs[i]: [album[i], artist[i]] for i in range(len(songs))}
+  #context = dict(data = songs)
 
-  return render_template("songs.html", name = name, count = count, **context)
+  return render_template("songs.html", name = name, count = count, liked = liked)
 
 @app.route('/playlists', methods=['GET'])
 def playlists():
-  cursor = g.conn.execute('SELECT c.title, c.date_created, c.duration, p.num_songs as number_of_songs, p.num_followers as Number_of_Followers FROM l_creates_p l, collection c, playlist p, l_creates_p l2, member m WHERE l.member_id = (%s) AND l.collection_id = c.collection_id AND c.collection_id = p.collection_ID', ID)
+  cursor = g.conn.execute('select c.title, c.date_created, c.duration, p.num_songs as number_of_songs, p.num_followers as Number_of_Followers from l_creates_p l, collection c, playlist p where l.member_id = (%s) AND l.collection_id = c.collection_id AND c.collection_id = p.collection_ID ', ID)
   titles = []
   date = []
   duration = []
   num_songs = []
+  num_followers = []
   for result in cursor: 
     titles.append(result[0])
     date.append(result[1])
     duration.append(result[2])
     num_songs.append(result[3])
+    num_followers.append(result[4])
   cursor.close()
 
-  my_playlists = {titles[i]: [date[i], duration[i], num_songs[i]] for i in range(len(titles))} 
+  my_playlists = {titles[i]: [date[i], duration[i], num_songs[i], num_followers[i]] for i in range(len(titles))} 
 
   cursor = g.conn.execute('select c.title, c.date_created, c.duration, p.num_songs as number_of_songs, p.num_followers as Number_of_Followers, m.name from l_follows_p l, collection c, playlist p, member m where l.member_id = (%s) AND l.collection_ID = c.collection_ID AND c.collection_id = p.collection_ID AND m.member_id = l.member_id', ID)
   titles1 = []

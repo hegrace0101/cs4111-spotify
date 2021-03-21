@@ -15,6 +15,7 @@
 				<td> <h4>Date Created</h4> </td>
 				<td> <h4>Duration</h4></td>
 				<td> <h4>Number of Songs</h4></td>
+				<td> <h4>Number of Followers</h4></td>
 		</tr>
 		{% for key, value in my_playlists.items() %}
 		   <tr>
@@ -22,6 +23,7 @@
 				<td> {{ value[0] }} </td>
 				<td> {{ value[1] }} </td>
 				<td> {{ value[2] }} </td>
+				<td> {{ value[3] }} </td>
 		   </tr>
 		{% endfor %}
 	</table>
