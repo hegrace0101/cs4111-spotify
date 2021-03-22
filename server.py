@@ -440,10 +440,17 @@ def profile():
   cursor.close()
   count3 = count_tmp3[0]
 
+  cursor = g.conn.execute('SELECT genre, count(genre) FROM (SELECT member_id FROM member WHERE name = (%s)) AS T1 NATURAL JOIN likes JOIN song ON song.song_id = likes.song_id GROUP BY genre ORDER BY count(genre) DESC;', name)
+  genre = []
+  scount = []
+  for result in cursor: 
+    genre.append(result[0])
+    scount.append(result[1])
+  cursor.close()
 
+  genre2 = {genre[i]: scount[i] for i in range(len(genre))}
 
-  return render_template("profile.html", profile = profile, count1 = count1, count2 = count2, count3 = count3)
-
+  return render_template("profile.html", profile = profile, count1 = count1, count2 = count2, count3 = count3, genre = genre2)
 
 if __name__ == "__main__":
   import click
