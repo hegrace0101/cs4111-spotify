@@ -18,7 +18,7 @@ Implementation Details
 
     What hasn't been implemented:
         - picture attribute for members 
-        - age function()
+        - triggers and assertions, as previously noted in part2
 
 2 Web Pages with the the most interesting database operations in terms of what the pages are used for, 
 how the page is related to the database operations (e.g., inputs on the page are used in such and such 

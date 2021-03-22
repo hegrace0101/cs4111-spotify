@@ -401,6 +401,50 @@ def artist(a_name):
 
   return render_template('artist.html', name=name, country=country, age=age, count=count, genres=genres, albums=albums, songs=songs)
 
+@app.route('/profile', methods=['GET'])
+def profile():
+  cursor = g.conn.execute('SELECT name, date_created as date_joined, country, birthday, EXTRACT (year FROM age (current_date, birthday)) :: int as age FROM member WHERE member_id =(%s)', ID)
+
+  name = []
+  date_joined = []
+  country = []
+  age = []
+
+  for result in cursor:
+    name.append(result[0])
+    date_joined.append(result[1])
+    country.append(result[2])
+    age.append(result[3])
+  cursor.close()
+
+  profile = {name[i]: [date_joined[i], country[i], age[i]] for i in range(len(name))}
+
+  cursor = g.conn.execute('SELECT COUNT(member_ID_1) as Number_of_Followers FROM member m, (SELECT member_id_1 FROM l_follows_m l WHERE member_ID_2 = (%s) ) as A WHERE m.member_id = a.member_id_1', ID)
+  count_tmp1 = []
+  for result in cursor: 
+    count_tmp1.append(result[0])
+  cursor.close()
+  count1 = count_tmp1[0]
+
+  cursor = g.conn.execute('SELECT COUNT(member_ID_2) as Number_Following FROM member m, (SELECT member_id_2 FROM l_follows_m l WHERE member_ID_1 = (%s)) as A WHERE m.member_id = a.member_id_2', ID)
+  count_tmp2 = []
+  for result in cursor: 
+    count_tmp2.append(result[0])
+  cursor.close()
+  count2 = count_tmp2[0]
+
+  cursor = g.conn.execute('SELECT COUNT(song_ID) as Number_of_Liked_Songs FROM likes WHERE member_ID LIKE (%s)', ID)
+  count_tmp3 = []
+  for result in cursor: 
+    count_tmp3.append(result[0])
+  cursor.close()
+  count3 = count_tmp3[0]
+
+
+
+  return render_template("profile.html", profile = profile, count1 = count1, count2 = count2, count3 = count3)
+
+
 if __name__ == "__main__":
   import click
 

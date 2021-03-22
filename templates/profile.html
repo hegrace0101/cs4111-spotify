@@ -7,8 +7,9 @@
   </style>
 
 <body>
-    <h1>My Profile</h1>
-    <table>
+    <h1> My Profile </h1>
+    
+	<table>
 		<tr>
 			<th> <h4>Name</h4> </th>
 				<td> <h4>Date Joined</h4> </td>
@@ -24,6 +25,31 @@
 		   </tr>
 		{% endfor %}
 	</table>
+
+	<br>
+
+	<h4> Number of Followers: {{ count1 }}</h4>
+	<h4> Number Following: {{ count2 }}</h4>
+	<h4> Number of Liked Songs: {{ count3 }}</h4>
+
+	<br>
+<!--
+	<h4>Favorite Genres</h4>
+
+	<table>
+		<tr>
+			<th> <h4>Genre</h4> </th>
+			<td> <h4>Song Count</h4> </td>
+		</tr>
+		{% for key, value in genre.items() %}
+		   <tr>
+				<td> {{ key }} </td>>
+				<td> {{ value[0] }} </td>
+		   </tr>
+		{% endfor %}
+	</table>
+	
+-->
 
 </body>
 
