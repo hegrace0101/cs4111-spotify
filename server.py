@@ -269,7 +269,45 @@ def unfollow():
 
   return redirect('/following')
 
+@app.route('/playlist/<string:pl_name>')
+def playlist(pl_name):
+    name = pl_name
 
+    cursor = g.conn.execute('SELECT collection_id FROM collection WHERE title = (%s)', name)
+    playlist_ID_tmp = []
+    for result in cursor:
+      playlist_ID_tmp.append(result[0])
+    playlist_ID = playlist_ID_tmp[0]
+    cursor.close()
+
+    cursor = g.conn.execute('select c.date_created, c.duration from playlist p, collection c where p.collection_id = c.collection_id AND c.collection_ID = (%s)', playlist_ID)
+    date_tmp = []
+    duration_tmp = []
+    for result in cursor: 
+      date_tmp.append(result[0])
+      duration_tmp.append(result[1])
+    date = date_tmp[0]
+    duration = duration_tmp[0]
+
+    cursor = g.conn.execute('select m.name as Creators FROM (select member_ID from l_creates_p WHERE collection_ID = (%s)) as A NATURAL JOIN member m', playlist_ID)
+    creators = []
+    for result in cursor: 
+      creators.append(result[0])
+    cursor.close()
+
+    cursor = g.conn.execute('SELECT D.song_title as song, c.title as album, D.artist FROM (SELECT song.title as song_title, song.collection_id as album_id, C.artist FROM (SELECT B.song_id, member.name AS artist FROM  (SELECT A.song_id, a_creates_s.member_ID as member_ID FROM (SELECT p.song_id, p.collection_ID FROM s_in_p p WHERE collection_id = (%s)) AS A NATURAL JOIN a_creates_s) as B NATURAL JOIN member) AS C NATURAL JOIN song) AS D LEFT OUTER JOIN collection c ON D.album_id = c.collection_id', playlist_ID)
+    songs = []
+    albums = []
+    artists = []
+    for result in cursor:
+      songs.append(result[0])
+      albums.append(result[1])
+      artists.append(result[2])
+    cursor.close()
+    
+    playlist_songs = {songs[i]: [albums[i], artists[i]] for i in range(len(songs))}
+
+    return render_template('playlist.html', name=name, date=date, duration=duration, creators=creators, songs=playlist_songs)
 
 if __name__ == "__main__":
   import click

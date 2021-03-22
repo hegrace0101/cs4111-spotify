@@ -1,0 +1,39 @@
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+<body>
+	<h1>{{name}}</h1>
+	
+	<div>
+		<h4> By: </h4> 
+		{% for n in creators %}
+    		<div>{{n}}</div>
+    	{% endfor %}
+	</div>
+	
+	<h4> Date Created: {{date}}</h4>
+	<h4> Duration: {{duration}}</h4>
+
+	<table>
+		<tr>
+			<th> <h4>Song</h4> </th>
+				<td> <h4>Album</h4> </td>
+				<td> <h4>Artist</h4></td>
+		</tr>
+		{% for key, value in songs.items() %}
+		   <tr>
+				<th> {{ key }} </th>
+				<td> {{ value[0] }} </td>
+				<td> {{ value[1] }} </td>
+		   </tr>
+		{% endfor %}
+	</table>
+
+</body>
+
+</html>
