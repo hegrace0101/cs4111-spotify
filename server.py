@@ -254,6 +254,22 @@ def unlike():
 
   return redirect('/liked-songs')
 
+@app.route('/unfollow', methods=['POST'])
+def unfollow():
+  name_unfollow = request.form['unfollow']
+
+  cursor = g.conn.execute('SELECT member_id FROM member WHERE name = (%s)', name_unfollow)
+  mem_ID_unfollow_tmp = []
+  for result in cursor: 
+    mem_ID_unfollow_tmp.append(result[0])
+  mem_ID_unfollow = mem_ID_unfollow_tmp[0]
+  cursor.close()
+
+  g.conn.execute('DELETE from l_follows_m WHERE member_id_1 = (%s) and member_ID_2 = (%s)', ID, mem_ID_unfollow)
+
+  return redirect('/following')
+
+
 
 if __name__ == "__main__":
   import click
