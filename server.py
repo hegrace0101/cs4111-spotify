@@ -128,11 +128,6 @@ def index():
 def dashboard():
   email = request.form['email']
 
-  #cursor = g.conn.execute("SELECT title, song_ID FROM song")
-  #songs = []
-  #for result in cursor:
-  #  songs.append(result[1])  # can also be accessed using result[0]
-  #cursor.close()
   cursor = g.conn.execute('SELECT name, member_ID FROM member WHERE email = (%s)', email)
   name_tmp = []
   id_tmp = []
@@ -243,6 +238,21 @@ def playlists():
   following_playlists = {titles1[i]: [date1[i], duration1[i], num_songs1[i]] for i in range(len(titles1))} 
   
   return render_template("playlists.html", my_playlists = my_playlists, following_playlists = following_playlists)
+
+@app.route('/unlike', methods=['POST'])
+def unlike():
+  song_name = request.form['unlike']
+
+  cursor = g.conn.execute('SELECT song_id FROM song WHERE title = (%s)', song_name)
+  song_ID_tmp = []
+  for result in cursor: 
+    song_ID_tmp.append(result[0])
+  song_ID = song_ID_tmp[0]
+  cursor.close()
+
+  g.conn.execute('DELETE from likes WHERE member_id = (%s) AND song_id = (%s)', ID, song_ID)
+
+  return redirect('/liked-songs')
 
 
 if __name__ == "__main__":
