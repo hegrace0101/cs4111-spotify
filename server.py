@@ -345,6 +345,62 @@ def album(a_name):
 
   return render_template('album.html', name=name, artist=artist, date=date, duration=duration, songs=songs)
 
+@app.route('/artist/<string:a_name>')
+def artist(a_name):
+  name = a_name
+  
+  cursor = g.conn.execute('SELECT member_id FROM member WHERE name = (%s)', name)
+  artist_ID_tmp = []
+  for result in cursor:
+    artist_ID_tmp.append(result[0])
+  artist_ID = artist_ID_tmp[0]
+  cursor.close()
+
+  cursor = g.conn.execute('select country, EXTRACT (year FROM age (current_date, birthday)) :: int as age from member where member_id = (%s)', artist_ID_tmp)
+  country_tmp = []
+  age_tmp = []
+  for result in cursor:
+    country_tmp.append(result[0])
+    age_tmp.append(result[1])
+  country = country_tmp[0]
+  age = age_tmp[0]
+  cursor.close()
+
+  cursor = g.conn.execute('select g.genre_id from genre g where g.member_id = (%s)', artist_ID)
+  genres = []
+  for result in cursor: 
+    genres.append(result[0])
+  cursor.close()
+
+  cursor = g.conn.execute('SELECT COUNT(member_ID_1) as Number_of_Followers FROM member m, (SELECT member_id_1 FROM l_follows_m l WHERE member_ID_2 = (%s)) as A Where m.member_id = a.member_id_1', artist_ID)
+  count_tmp = []
+  for result in cursor: 
+    count_tmp.append(result[0])
+  count = count_tmp[0]
+  cursor.close()
+
+  cursor = g.conn.execute('select c.title, c.date_created, c.duration, a.num_songs as number_of_songs from collection c, a_creates_a b, album a where c.collection_id = b.collection_id AND b.member_id = (%s) AND b.collection_id = a.collection_id ', artist_ID)
+  titles = []
+  dates = []
+  durations = []
+  num_songs = []
+  for result in cursor: 
+    titles.append(result[0])
+    dates.append(result[1])
+    durations.append(result[2])
+    num_songs.append(result[3])
+  cursor.close()
+
+  albums = {titles[i]: [dates[i], durations[i], num_songs[i]] for i in range(len(titles))}
+
+  cursor = g.conn.execute('select s.title from a_creates_s a, song s where a.member_id = (%s) AND s.song_id = a.song_id', artist_ID)
+  songs = []
+  for result in cursor:
+    songs.append(result[0])
+  cursor.close()
+
+  return render_template('artist.html', name=name, country=country, age=age, count=count, genres=genres, albums=albums, songs=songs)
+
 if __name__ == "__main__":
   import click
 
