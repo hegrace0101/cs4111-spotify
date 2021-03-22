@@ -309,6 +309,42 @@ def playlist(pl_name):
 
     return render_template('playlist.html', name=name, date=date, duration=duration, creators=creators, songs=playlist_songs)
 
+@app.route('/album/<string:a_name>')
+def album(a_name):
+  name = a_name
+
+  cursor = g.conn.execute('SELECT collection_id FROM collection WHERE title = (%s)', name)
+  album_ID_tmp = []
+  for result in cursor:
+    album_ID_tmp.append(result[0])
+  album_ID = album_ID_tmp[0]
+  cursor.close()
+
+  cursor = g.conn.execute('select c.date_created, c.duration from collection c, album a where c.collection_id = a.collection_id AND a.collection_ID = (%s)', album_ID)
+  date_tmp = []
+  duration_tmp = []
+  for result in cursor: 
+    date_tmp.append(result[0])
+    duration_tmp.append(result[1])
+  date = date_tmp[0]
+  duration = duration_tmp[0]
+  cursor.close()
+
+  cursor = g.conn.execute('select m.name from a_creates_a a, member m where a.collection_id = (%s) AND a.member_id = m.member_id', album_ID)
+  artist_tmp = []
+  for result in cursor: 
+    artist_tmp.append(result[0])
+  artist = artist_tmp[0]
+  cursor.close()
+
+  cursor = g.conn.execute('select song.title from song where song.collection_id = (%s)', album_ID)
+  songs = []
+  for result in cursor: 
+    songs.append(result[0])
+  cursor.close()
+
+  return render_template('album.html', name=name, artist=artist, date=date, duration=duration, songs=songs)
+
 if __name__ == "__main__":
   import click
 

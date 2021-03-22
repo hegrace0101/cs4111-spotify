@@ -41,7 +41,7 @@
 		</tr>
 		{% for key, value in following_playlists.items() %}
 		   <tr>
-				<th> <a href="{{ url_for('playlist', pl_name=key) }}">{{ key }}</a> </th>
+				<th> <a href="/playlist/{{key}}">{{ key }}</a> </th>
 				<td> {{ value[0] }} </td>
 				<td> {{ value[1] }} </td>
 				<td> {{ value[2] }} </td>

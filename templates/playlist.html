@@ -28,11 +28,18 @@
 		{% for key, value in songs.items() %}
 		   <tr>
 				<th> {{ key }} </th>
-				<td> {{ value[0] }} </td>
+				<td> <a href="/album/{{value[0]}}">{{ value[0] }}</a></td>
 				<td> {{ value[1] }} </td>
 		   </tr>
 		{% endfor %}
 	</table>
+
+	<script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+  	<script>
+    	$(document).ready(function() {
+      		$('a[href*="/album/None"]').removeAttr("href");
+    	});
+  	</script>
 
 </body>
 
