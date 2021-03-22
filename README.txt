@@ -4,7 +4,7 @@ Postgresql account: al3854@columbia.edu (al3854)
 web application URL: 
 
 Implementation Details
-    What Has Been Implemented:
+    What hasn't been implemented:
         - search bar by song name
         - profile page and setting page (combined into one page)
         - list of followers and following (with unfollow buttons) 
@@ -16,6 +16,9 @@ Implementation Details
           individual artist and album pages (redundancy to mimic the spotify UI that lets you access
           the information from various pages)
 
+    What hasn't been implemented:
+        - picture attribute for members 
+        - age function()
 
 2 Web Pages with the the most interesting database operations in terms of what the pages are used for, 
 how the page is related to the database operations (e.g., inputs on the page are used in such and such 
