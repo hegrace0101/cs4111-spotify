@@ -21,21 +21,10 @@
 				<th> {{ key }} </th>
 				<td> {{ value[0] }} </td>
 				<td> {{ value[1] }} </td>
-        <td> <form style="display: inline" method="POST" action="/unlike"> <button value="{{n}}" name="unlike" type="submit"> Unlike </button> </form> </td>
+        <td> <form style="display: inline" method="POST" action="/unlike"> <button value="{{key}}" name="unlike" type="submit"> Unlike </button> </form> </td>
 		   </tr>
 		{% endfor %}
 	</table>
-
-
-  <!--<div>
-    {% for n in liked %}
-    <div> 
-      <p style="display: inline">{{n}} 
-        <form style="display: inline" method="POST" action="/unlike"> <button value="{{n}}" name="unlike" type="submit"> Unlike </button> </form>
-      </p>
-    </div> 
-    {% endfor %}
-  </div> -->
 
 </body>
 
