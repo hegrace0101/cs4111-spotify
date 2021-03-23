@@ -140,7 +140,47 @@ def dashboard():
   global ID
   ID = id_tmp[0]
 
-  return render_template("dashboard.html", name = name, id = ID)
+  cursor = g.conn.execute('SELECT s.title FROM song s, (select q.song_id, q.is_playing, q.collection_id from queue q, member m where q.listener_id = m.member_id AND m.member_id = (%s)) as A Where a.song_id = s.song_id', ID)
+  song_tmp = []
+  for result in cursor:
+    song_tmp.append(result[0])
+  if len(song_tmp) != 0: 
+    song = song_tmp[0]
+  else:
+     song = None
+
+  cursor = g.conn.execute('SELECT A.is_playing FROM (select q.song_id, q.is_playing, q.collection_id from queue q, member m where q.listener_id = m.member_id AND m.member_id = (%s)) as A', ID)
+  is_playing_tmp = []
+  for result in cursor:
+    is_playing_tmp.append(result[0])
+  is_playing = is_playing_tmp[0]
+
+  cursor = g.conn.execute('SELECT A.collection_ID FROM (select q.song_id, q.is_playing, q.collection_id from queue q, member m where q.listener_id = m.member_id AND m.member_id = (%s)) as A', ID)
+  collection_ID_tmp = []
+  for result in cursor:
+    collection_ID_tmp.append(result[0])
+  collection_ID = collection_ID_tmp[0]
+
+  if not is_playing:
+    song = ''
+
+  cursor = g.conn.execute('Select count(*) From playlist Where collection_ID = (%s)', collection_ID)
+  is_playlist_tmp = []
+  for result in cursor: 
+    is_playlist_tmp.append(result[0])
+  is_playlist = is_playlist_tmp[0]
+
+  songs = []
+  if song == None:
+    if is_playlist: 
+      cursor = g.conn.execute('SELECT s.title FROM song s, (SELECT song_id FROM s_in_p WHERE collection_id = (select q.collection_id from queue q, member m where q.listener_id = m.member_id AND m.member_id = (%s))) as A WHERE s.song_id = a.song_id', ID)
+    else: 
+      cursor = g.conn.execute('SELECT s.title FROM song s WHERE collection_ID = (select q.collection_id from queue q, member m where q.listener_id = m.member_id AND m.member_id = (%s))', ID)
+    for result in cursor: 
+      songs.append(result[0])
+    song = songs[0]
+  
+  return render_template("dashboard.html", name = name, id = ID, current_song=song)
 
 @app.route('/followers', methods=['GET'])
 def followers():
@@ -171,23 +211,15 @@ def following():
   cursor.close()
   count = count_tmp[0]
 
-  cursor = g.conn.execute('SELECT m.name FROM member m, (select member_id_2 from l_follows_m l, artist a where l.member_id_2 = a.member_id AND member_id_1 = (%s)) as A where m.member_id = a.member_id_2', ID)
-  followingartists = []
+  cursor = g.conn.execute('SELECT m.name as Followers FROM member m, (SELECT member_id_2 FROM l_follows_m l WHERE member_ID_1 = (%s)) as A WHERE m.member_id = a.member_id_2', ID)
+  following = []
   for result in cursor:
-    followingartists.append(result[0])
+    following.append(result[0])
   cursor.close()
- 
-  context = dict(data = followingartists)
- 
-  cursor = g.conn.execute('SELECT m.name FROM member m, (select member_id_2 from l_follows_m l, listener d where l.member_id_2 = d.member_id AND member_id_1 = (%s)) as A where m.member_id = a.member_id_2', ID)
-  followinglisteners = []
-  for result in cursor:
-    followinglisteners.append(result[0])
-  cursor.close()
- 
-  context2 = dict(data2 = followinglisteners)
- 
-  return render_template("following.html", name = name, count = count, **context, **context2)
+
+  context = dict(data = following)
+
+  return render_template("following.html", name = name, count = count, **context)
 
 @app.route('/liked-songs', methods=['GET'])
 def songs():
@@ -448,7 +480,7 @@ def profile():
   cursor.close()
   count3 = count_tmp3[0]
 
-  cursor = g.conn.execute('SELECT genre, count(genre) FROM (SELECT member_id FROM member WHERE name = (%s)) AS T1 NATURAL JOIN likes JOIN song ON song.song_id = likes.song_id GROUP BY genre ORDER BY count(genre) DESC;', name)
+  cursor = g.conn.execute('SELECT genre, count(genre) FROM (SELECT member_id FROM member WHERE name = (%s) AS T1 NATURAL JOIN likes JOIN song ON song.song_id = likes.song_id GROUP BY genre ORDER BY count(genre) DESC;', name)
   genre = []
   scount = []
   for result in cursor: 
@@ -459,6 +491,57 @@ def profile():
   genre2 = {genre[i]: scount[i] for i in range(len(genre))}
 
   return render_template("profile.html", profile = profile, count1 = count1, count2 = count2, count3 = count3, genre = genre2)
+
+@app.route('/queue', methods=['GET'])
+def queue():
+  cursor = g.conn.execute('SELECT s.title FROM song s, (select q.song_id, q.is_playing, q.collection_id from queue q, member m where q.listener_id = m.member_id AND m.member_id = (%s)) as A Where a.song_id = s.song_id', ID)
+  song_tmp = []
+  for result in cursor:
+    song_tmp.append(result[0])
+  if len(song_tmp) != 0: 
+    song = song_tmp[0]
+  else:
+     song = None
+
+  cursor = g.conn.execute('SELECT A.is_playing FROM (select q.song_id, q.is_playing, q.collection_id from queue q, member m where q.listener_id = m.member_id AND m.member_id = (%s)) as A', ID)
+  is_playing_tmp = []
+  for result in cursor:
+    is_playing_tmp.append(result[0])
+  is_playing = is_playing_tmp[0]
+
+  cursor = g.conn.execute('SELECT A.collection_ID FROM (select q.song_id, q.is_playing, q.collection_id from queue q, member m where q.listener_id = m.member_id AND m.member_id = (%s)) as A', ID)
+  collection_ID_tmp = []
+  for result in cursor:
+    collection_ID_tmp.append(result[0])
+  collection_ID = collection_ID_tmp[0]
+
+  if not is_playing:
+    song = ''
+
+  cursor = g.conn.execute('Select count(*) From playlist Where collection_ID = (%s)', collection_ID)
+  is_playlist_tmp = []
+  for result in cursor: 
+    is_playlist_tmp.append(result[0])
+  is_playlist = is_playlist_tmp[0]
+
+  cursor = g.conn.execute('Select title From collection Where collection_ID = (%s)', collection_ID)
+  collection_tmp = []
+  for result in cursor: 
+    collection_tmp.append(result[0])
+  collection = collection_tmp[0]
+
+  songs = []
+  if song == None:
+    if is_playlist: 
+      cursor = g.conn.execute('SELECT s.title FROM song s, (SELECT song_id FROM s_in_p WHERE collection_id = (select q.collection_id from queue q, member m where q.listener_id = m.member_id AND m.member_id = (%s))) as A WHERE s.song_id = a.song_id', ID)
+    else: 
+      cursor = g.conn.execute('SELECT s.title FROM song s WHERE collection_ID = (select q.collection_id from queue q, member m where q.listener_id = m.member_id AND m.member_id = (%s))', ID)
+    for result in cursor: 
+      songs.append(result[0])
+    song = songs[0]
+  
+  return render_template('queue.html', current_song=song, collection=collection, songs=songs)
+
 
 if __name__ == "__main__":
   import click

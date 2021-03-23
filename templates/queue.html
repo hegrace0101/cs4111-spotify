@@ -1,0 +1,23 @@
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+<body>
+    <h1>My Queue</h1>
+    
+	<h3>Currently Playing: {{current_song}}</h2>
+	<h3>Collection in Queue: {{collection}}</h3>
+
+	<h2>Next in queue: </h2>
+	{% for n in songs %}
+		<p>{{n}}</p>
+	{% endfor %}
+	
+</body>
+
+</html>
+
