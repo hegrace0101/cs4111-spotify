@@ -9,6 +9,7 @@
 <body>
 	<h1>{{name}} is following ({{count}})</h1>
 
+  <h4> Artists</h4>
   <table>
 		{% for n in data %}
 		   <tr>
@@ -18,6 +19,17 @@
 		{% endfor %}
 	</table>
 
+  <br> 
+
+  <h4>Listeners</h4>
+  <table>
+		{% for n in data2 %}
+		   <tr>
+				<th> {{ n }} </th>
+        <td> <form style="display: inline" method="POST" action="/unfollow"> <button value="{{n}}" name="unfollow" type="submit"> Unfollow </button> </form> </td>
+		   </tr>
+		{% endfor %}
+	</table>
     <!--<div>
         {% for n in data %}
         <div>{{n}}</div>

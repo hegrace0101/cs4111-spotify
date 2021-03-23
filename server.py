@@ -171,15 +171,23 @@ def following():
   cursor.close()
   count = count_tmp[0]
 
-  cursor = g.conn.execute('SELECT m.name as Followers FROM member m, (SELECT member_id_2 FROM l_follows_m l WHERE member_ID_1 = (%s)) as A WHERE m.member_id = a.member_id_2', ID)
-  following = []
+  cursor = g.conn.execute('SELECT m.name FROM member m, (select member_id_2 from l_follows_m l, artist a where l.member_id_2 = a.member_id AND member_id_1 = (%s)) as A where m.member_id = a.member_id_2', ID)
+  followingartists = []
   for result in cursor:
-    following.append(result[0])
+    followingartists.append(result[0])
   cursor.close()
-
-  context = dict(data = following)
-
-  return render_template("following.html", name = name, count = count, **context)
+ 
+  context = dict(data = followingartists)
+ 
+  cursor = g.conn.execute('SELECT m.name FROM member m, (select member_id_2 from l_follows_m l, listener d where l.member_id_2 = d.member_id AND member_id_1 = (%s)) as A where m.member_id = a.member_id_2', ID)
+  followinglisteners = []
+  for result in cursor:
+    followinglisteners.append(result[0])
+  cursor.close()
+ 
+  context2 = dict(data2 = followinglisteners)
+ 
+  return render_template("following.html", name = name, count = count, **context, **context2)
 
 @app.route('/liked-songs', methods=['GET'])
 def songs():
