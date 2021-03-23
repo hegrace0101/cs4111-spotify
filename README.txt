@@ -25,6 +25,7 @@ Implementation Details
         - triggers and assertions, as previously noted in part2
         - setting page
         - following, and liking interactions
+        - view what following is listening to currently
 
 2 Web Pages with the the most interesting database operations in terms of what the pages are used for, 
 how the page is related to the database operations (e.g., inputs on the page are used in such and such 
