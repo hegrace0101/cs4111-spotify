@@ -1,7 +1,7 @@
 Audrey Leong al3854, Grace He gh2549
 Postgresql account: al3854@columbia.edu (al3854)
 
-web application URL: 
+web application URL: http://35.229.78.218:8111/
 
 Implementation Details
     What has been implemented:
@@ -38,5 +38,14 @@ automatically redirect/refresh the page, showing that the song was unliked and r
 of liked songs. I thought that this operation would be difficult, but was able to successfully 
 implement its functionality, while making the transition of unliking a song flawless. 
 
-The dashboard has the most interesting database operations. 
+The dashboard page (/dashboard) has the most interesting database operations. First, it displays the
+song that is currently playing. This is derived from the queue which may or may not have a preassigned
+currently played song. In the secnario there isn't a preassigned song, it takes the first song from
+the associated collection. We needed to identify if the collection was either a playlist or album 
+using SQL. Then separate queries were performed to collect all the songs in the respective collection.
+Then the first song in the collection was disaplyed as the song currently playing. Additionally, the 
+dashboard has a search functionality where the user can search up a song. A word is typed into the
+search bar and a SQL query is performed on all the songs. The query returned the songs that contain
+the search word and associated albums and artists. This is interesesting because any user can perform 
+a search using SQL. 
 
