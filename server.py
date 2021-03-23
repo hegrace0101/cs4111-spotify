@@ -542,6 +542,25 @@ def queue():
   
   return render_template('queue.html', current_song=song, collection=collection, songs=songs)
 
+@app.route('/search', methods=['POST'])
+def search():
+  search = request.form['search_word'].lower()
+
+  query = "SELECT song_title, member.name AS artist, album_title FROM (SELECT song_title, member_id, collection.title AS album_title FROM (SELECT song_id, title AS song_title, collection_id FROM song WHERE LOWER(title) LIKE '%%" + search + "%%') AS T1 NATURAL JOIN a_creates_s LEFT OUTER JOIN collection ON collection.collection_id = T1.collection_id) AS T2 NATURAL JOIN member;"
+  cursor = g.conn.execute(query)
+  songs = []
+  artists = []
+  albums = []
+  for result in cursor: 
+    songs.append(result[0])
+    artists.append(result[1])
+    albums.append(result[2])
+  cursor.close()
+
+  results = {songs[i] : [artists[i], albums[i]] for i in range(len(songs))}
+
+  return render_template('search.html', word=search, results=results)
+
 
 if __name__ == "__main__":
   import click
