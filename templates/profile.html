@@ -18,7 +18,7 @@
 		</tr>
 		{% for key, value in profile.items() %}
 		   <tr>
-				<td> {{ key }} </td>>
+				<td> {{ key }} </td>
 				<td> {{ value[0] }} </td>
 				<td> {{ value[1] }} </td>
 				<td> {{ value[2] }} </td>
@@ -33,9 +33,9 @@
 	<h4> Number of Liked Songs: {{ count3 }}</h4>
 
 	<br>
-<!--
-	<h4>Favorite Genres</h4>
 
+	<h4>Favorite Genres</h4>
+	
 	<table>
 		<tr>
 			<th> <h4>Genre</h4> </th>
@@ -44,12 +44,11 @@
 		{% for key, value in genre.items() %}
 		   <tr>
 				<td> {{ key }} </td>>
-				<td> {{ value[0] }} </td>
+				<td> {{ value }} </td>
 		   </tr>
 		{% endfor %}
 	</table>
 	
--->
 
 </body>
 
