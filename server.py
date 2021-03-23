@@ -495,17 +495,7 @@ def profile():
 
   genre2 = {genre[i]: scount[i] for i in range(len(genre))}
 
-  cursor = g.conn.execute('SELECT * FROM (SELECT song, (CASE WHEN count IS NULL THEN 0 ELSE count END) AS likes FROM ((SELECT song.song_id, title AS song FROM (SELECT collection_idFROM ((SELECT member_idFROM member WHERE name = (%s)) AS T1 NATURAL JOIN l_creates_p NATURAL JOIN playlist) WHERE num_followers IN (SELECT MAX(num_followers) as max FROM (SELECT member_id FROM member WHERE name = (%s)) AS T2 NATURAL JOIN l_creates_p NATURAL JOIN playlist)) AS T3 NATURAL JOIN s_in_p JOIN song ON song.song_id = s_in_p.song_id) AS T3 LEFT OUTER JOIN (SELECT song_id, count(song_id) AS count FROM likes GROUP BY song_id) AS T4 ON T3.song_id = T4.song_id)) AS T5 ORDER BY likes DESC;', name)
-  song = []
-  likes = []
-  for result in cursor:
-    song.append(result[0])
-    likes.append(result[1])
-  cursor.close
-
-  liked = {song[i]: likes[i] for i in range(len(song))}
-
-  return render_template("profile.html", profile = profile, count1 = count1, count2 = count2, count3 = count3, genre = genre2, likes = likes)
+  return render_template("profile.html", profile = profile, count1 = count1, count2 = count2, count3 = count3, genre = genre2)
 
 @app.route('/queue', methods=['GET'])
 def queue():
