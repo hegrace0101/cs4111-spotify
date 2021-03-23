@@ -171,13 +171,14 @@ def dashboard():
   is_playlist = is_playlist_tmp[0]
 
   songs = []
-  if song == None:
-    if is_playlist: 
-      cursor = g.conn.execute('SELECT s.title FROM song s, (SELECT song_id FROM s_in_p WHERE collection_id = (select q.collection_id from queue q, member m where q.listener_id = m.member_id AND m.member_id = (%s))) as A WHERE s.song_id = a.song_id', ID)
-    else: 
-      cursor = g.conn.execute('SELECT s.title FROM song s WHERE collection_ID = (select q.collection_id from queue q, member m where q.listener_id = m.member_id AND m.member_id = (%s))', ID)
-    for result in cursor: 
-      songs.append(result[0])
+  if is_playlist == 1: 
+    cursor = g.conn.execute('SELECT s.title FROM song s, (SELECT song_id FROM s_in_p WHERE collection_id = (%s)) as A WHERE s.song_id = a.song_id', collection_ID)
+  else: 
+    cursor = g.conn.execute('SELECT title FROM song WHERE collection_ID = (%s)', collection_ID)
+  for result in cursor: 
+    songs.append(result[0])
+  
+  if not is_playing:
     song = songs[0]
   
   return render_template("dashboard.html", name = name, id = ID, current_song=song)
@@ -531,13 +532,14 @@ def queue():
   collection = collection_tmp[0]
 
   songs = []
-  if song == None:
-    if is_playlist: 
-      cursor = g.conn.execute('SELECT s.title FROM song s, (SELECT song_id FROM s_in_p WHERE collection_id = (select q.collection_id from queue q, member m where q.listener_id = m.member_id AND m.member_id = (%s))) as A WHERE s.song_id = a.song_id', ID)
-    else: 
-      cursor = g.conn.execute('SELECT s.title FROM song s WHERE collection_ID = (select q.collection_id from queue q, member m where q.listener_id = m.member_id AND m.member_id = (%s))', ID)
-    for result in cursor: 
-      songs.append(result[0])
+  if is_playlist == 1: 
+    cursor = g.conn.execute('SELECT s.title FROM song s, (SELECT song_id FROM s_in_p WHERE collection_id = (%s)) as A WHERE s.song_id = a.song_id', collection_ID)
+  else: 
+    cursor = g.conn.execute('SELECT title FROM song WHERE collection_ID = (%s)', collection_ID)
+  for result in cursor: 
+    songs.append(result[0])
+  
+  if not is_playing:
     song = songs[0]
   
   return render_template('queue.html', current_song=song, collection=collection, songs=songs)
