@@ -48,6 +48,23 @@
 		   </tr>
 		{% endfor %}
 	</table>
+
+	<br>
+
+	<h4>Most Liked Playlist's Songs</h4>
+    
+    <table>
+        <tr>
+            <th> <h4>Song</h4> </th>
+            <td> <h4>Likes</h4> </td>
+        </tr>
+        {% for key, value in likes.items() %}
+           <tr>
+                <td> {{ key }} </td>>
+                <td> {{ value[0] }} </td>
+           </tr>
+        {% endfor %}
+    </table>
 	
 
 </body>
